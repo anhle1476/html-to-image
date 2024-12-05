@@ -1,8 +1,8 @@
-import type { Options } from './types'
 import { clonePseudoElements } from './clone-pseudos'
-import { createImage, toArray, isInstanceOfElement } from './util'
-import { getMimeType } from './mimes'
 import { resourceToDataURL } from './dataurl'
+import { getMimeType } from './mimes'
+import type { Options } from './types'
+import { createImage, isInstanceOfElement, toArray } from './util'
 
 async function cloneCanvasElement(canvas: HTMLCanvasElement) {
   const dataURL = canvas.toDataURL()
@@ -61,6 +61,15 @@ async function cloneSingleNode<T extends HTMLElement>(
     return cloneIFrameElement(node)
   }
 
+  if (
+    options.customElementConverter &&
+    node instanceof HTMLElement &&
+    options.customElementSelectors?.some((selector) => node.matches(selector))
+  ) {
+    const converted = await options.customElementConverter(node)
+    if (converted) return converted
+  }
+
   return node.cloneNode(false) as T
 }
 
@@ -88,6 +97,16 @@ async function cloneChildren<T extends HTMLElement>(
   if (
     children.length === 0 ||
     isInstanceOfElement(nativeNode, HTMLVideoElement)
+  ) {
+    return clonedNode
+  }
+
+  if (
+    options.customElementConverter &&
+    nativeNode instanceof HTMLElement &&
+    options.customElementSelectors?.some((selector) =>
+      nativeNode.matches(selector),
+    )
   ) {
     return clonedNode
   }
@@ -133,11 +152,11 @@ function cloneCSSStyle<T extends HTMLElement>(nativeNode: T, clonedNode: T) {
       ) {
         value = 'block'
       }
-      
+
       if (name === 'd' && clonedNode.getAttribute('d')) {
         value = `path(${clonedNode.getAttribute('d')})`
       }
-      
+
       targetStyle.setProperty(
         name,
         value,

@@ -1,0 +1,11 @@
+{
+  "name": "lib-html-to-image",
+  "version": "0.0.1",
+  "sideEffects": false,
+  "browser": "./index.js",
+  "module": "../es/index.js",
+  "typings": "./index.d.ts",
+  "dependencies": {
+    "tslib": "^2.3.0"
+  }
+}
