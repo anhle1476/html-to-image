@@ -91,4 +91,15 @@ export interface Options {
    *
    */
   fetchRequestInit?: RequestInit
+
+  /**
+   * Any element matching this selector will be converted by the callback from the caller
+   */
+  customElementSelectors?: string[]
+  /**
+   * The elements who matched the custom selector will be converted by this converter function
+   */
+  customElementConverter?: <T extends HTMLElement>(
+    node: T,
+  ) => Promise<HTMLElement | null>
 }
